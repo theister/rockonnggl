@@ -2565,8 +2565,10 @@ public class RockOnNextGenGL extends Activity {
 		@Override
 		public void handleMessage(Message msg){
 			try{
-				if(mService.getRepeatMode() == Constants.REPEAT_CURRENT ||
-						mService.getShuffleMode() == Constants.REPEAT_ALL){
+				if(mService.getRepeatMode() == Constants.REPEAT_CURRENT){
+					mService.setRepeatMode(Constants.REPEAT_ALL);
+					setRepeatButton(Constants.REPEAT_ALL);
+				} else if ( mService.getRepeatMode() == Constants.REPEAT_ALL){
 					mService.setRepeatMode(Constants.REPEAT_NONE);
 					setRepeatNoneButton();
 				} else {
@@ -3467,7 +3469,10 @@ public class RockOnNextGenGL extends Activity {
 				((ImageView)findViewById(R.id.player_controls_repeat)).
 					setImageResource(R.drawable.repeat_current_selector);
 				break;
-			// TODO: REPEAT_ALL
+			case Constants.REPEAT_ALL:
+				((ImageView)findViewById(R.id.player_controls_repeat)).
+					setImageResource(R.drawable.repeat_all_selector);
+				break;
 			}
 		}
 	}
@@ -3523,6 +3528,8 @@ public class RockOnNextGenGL extends Activity {
     		setRepeatNoneButton();
     	else if(repeat == Constants.REPEAT_CURRENT)
     		setRepeatButton(Constants.REPEAT_CURRENT);
+    	else if(repeat == Constants.REPEAT_ALL)
+    		setRepeatButton(Constants.REPEAT_ALL);
 	}
 	
 	/**
