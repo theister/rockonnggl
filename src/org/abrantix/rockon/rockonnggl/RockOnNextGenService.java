@@ -1543,6 +1543,7 @@ public class RockOnNextGenService extends Service {
 //                	if (mRepeatMode == Constants.REPEAT_ALL || force) {
                 	if (mRepeatMode == Constants.REPEAT_ALL) {
                         //pick from full set
+                		mHistory.clear();
                         numUnplayed = numTracks;
                         for (int i=0;i < numTracks; i++) {
                             tracks[i] = i;
@@ -2059,6 +2060,7 @@ public class RockOnNextGenService extends Service {
     public void setRepeatMode(int repeatmode) {
         synchronized(this) {
             mRepeatMode = repeatmode;
+            
             // let our widgets refresh
             if(mRepeatMode == Constants.REPEAT_NONE)
             	notifyChange(Constants.PLAYMODE_CHANGED);

@@ -2568,6 +2568,10 @@ public class RockOnNextGenGL extends Activity {
 				if(mService.getRepeatMode() == Constants.REPEAT_CURRENT){
 					mService.setRepeatMode(Constants.REPEAT_ALL);
 					setRepeatButton(Constants.REPEAT_ALL);
+		            if(mService.getQueue().length<=0){
+		            	Toast toast=Toast.makeText(RockOnNextGenGL.this, R.string.playqueue_empty_toast, Toast.LENGTH_LONG);
+		            	toast.show();
+		            }
 				} else if ( mService.getRepeatMode() == Constants.REPEAT_ALL){
 					mService.setRepeatMode(Constants.REPEAT_NONE);
 					setRepeatNoneButton();
