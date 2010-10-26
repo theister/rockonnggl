@@ -227,8 +227,13 @@ public class RockOnNextGenService extends Service {
             } else if (Constants.CMDSTOP.equals(cmd)) {
                 pause();
                 seek(0);
-            } 
-            else if (RockOnNextGenAppWidgetProvider.CMDAPPWIDGETUPDATE.equals(cmd)) {
+            } else if (Constants.CMDSEEKFWD.equals(cmd)) {
+            	long value = intent.getLongExtra(Constants.CMDSEEKAMOUNT, 0);
+            	seek(position() + value); 	
+            } else if (Constants.CMDSEEKBACK.equals(cmd)) {
+            	long value = intent.getLongExtra(Constants.CMDSEEKAMOUNT, 0);
+            	seek(position() - value); 	
+            } else if (RockOnNextGenAppWidgetProvider.CMDAPPWIDGETUPDATE.equals(cmd)) {
                 // Someone asked us to refresh a set of specific widgets, probably
                 // because they were just added.
                 int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
@@ -1543,7 +1548,6 @@ public class RockOnNextGenService extends Service {
 //                	if (mRepeatMode == Constants.REPEAT_ALL || force) {
                 	if (mRepeatMode == Constants.REPEAT_ALL) {
                         //pick from full set
-                		mHistory.clear();
                         numUnplayed = numTracks;
                         for (int i=0;i < numTracks; i++) {
                             tracks[i] = i;
@@ -1939,53 +1943,57 @@ public class RockOnNextGenService extends Service {
             
             // - remember to keep the first item in place
             // - clear history? YES
-            trimPlayQueue(mShuffleMode);
+//            trimPlayQueue(mShuffleMode);
             
             saveQueue(false);
         }
     }
     
-    private void trimPlayQueue(int shuffleMode){
-    	synchronized(this) {
-    		/**
-    		 * Trim the play list only if it contains songs
-    		 */
-    		if(mPlayListLen > 0 && mPlayPos < mPlayListLen)
-    		{
-	    		if(shuffleMode == Constants.SHUFFLE_NORMAL){
-	    			// FIXME: this may be wrong
-	        		long[] newlist = new long[mPlayListLen-mPlayPos];
-	        		for(int i=0; i<mPlayListLen-mPlayPos; i++){
-	        			Log.i(TAG, "i: "+i+" oldListLen: "+mPlayListLen+" newListLen: "+(mPlayListLen-mPlayPos));
-	        			newlist[i] = mPlayList[i+mPlayPos];
-	        			
-	        		}
-	        		mPlayList = newlist;
-	        		mPlayListLen = mPlayListLen-mPlayPos;
-	        		mPlayPos = 0;
-	            	mHistory.clear();	
-	        	} else if(shuffleMode == Constants.SHUFFLE_NONE){
-	        		// TODO: test extensively...
-	        		// go through the whole playlist and get all items that are not in history
-	        		long[] unplayedItems = getUnplayedItems();
-	        		// put the current item in the first position
-	        		for(int i=0; i<unplayedItems.length; i++){
-	        			if(unplayedItems[i] == mPlayList[mPlayPos]){
-	        				unplayedItems[i] = unplayedItems[0];
-	        				unplayedItems[0] = mPlayList[mPlayPos];
-	        				break;
-	        			}
-	        		}
-	        		// update the playlist, its length and current position
-	    			Log.i(TAG, "oldListLen: "+mPlayListLen+" newListLen: "+unplayedItems.length);
-	        		mPlayList = unplayedItems;
-	        		mPlayListLen = unplayedItems.length;
-	        		mPlayPos = 0;
-	        		mHistory.clear();
-	        	}
-			}
-    	}
-    }
+    /**
+     * Unused stuff
+     * @param shuffleMode
+     */
+//    private void trimPlayQueue(int shuffleMode){
+//    	synchronized(this) {
+//    		/**
+//    		 * Trim the play list only if it contains songs
+//    		 */
+//    		if(mPlayListLen > 0 && mPlayPos < mPlayListLen)
+//    		{
+//	    		if(shuffleMode == Constants.SHUFFLE_NORMAL){
+//	    			// FIXME: this may be wrong
+//	        		long[] newlist = new long[mPlayListLen-mPlayPos];
+//	        		for(int i=0; i<mPlayListLen-mPlayPos; i++){
+//	        			Log.i(TAG, "i: "+i+" oldListLen: "+mPlayListLen+" newListLen: "+(mPlayListLen-mPlayPos));
+//	        			newlist[i] = mPlayList[i+mPlayPos];
+//	        			
+//	        		}
+//	        		mPlayList = newlist;
+//	        		mPlayListLen = mPlayListLen-mPlayPos;
+//	        		mPlayPos = 0;
+//	            	mHistory.clear();	
+//	        	} else if(shuffleMode == Constants.SHUFFLE_NONE){
+//	        		// TODO: test extensively...
+//	        		// go through the whole playlist and get all items that are not in history
+//	        		long[] unplayedItems = getUnplayedItems();
+//	        		// put the current item in the first position
+//	        		for(int i=0; i<unplayedItems.length; i++){
+//	        			if(unplayedItems[i] == mPlayList[mPlayPos]){
+//	        				unplayedItems[i] = unplayedItems[0];
+//	        				unplayedItems[0] = mPlayList[mPlayPos];
+//	        				break;
+//	        			}
+//	        		}
+//	        		// update the playlist, its length and current position
+//	    			Log.i(TAG, "oldListLen: "+mPlayListLen+" newListLen: "+unplayedItems.length);
+//	        		mPlayList = unplayedItems;
+//	        		mPlayListLen = unplayedItems.length;
+//	        		mPlayPos = 0;
+//	        		mHistory.clear();
+//	        	}
+//			}
+//    	}
+//    }
     
     private long[] getUnplayedItems(){
     	int unplayedCount = mPlayListLen;
@@ -2060,7 +2068,6 @@ public class RockOnNextGenService extends Service {
     public void setRepeatMode(int repeatmode) {
         synchronized(this) {
             mRepeatMode = repeatmode;
-            
             // let our widgets refresh
             if(mRepeatMode == Constants.REPEAT_NONE)
             	notifyChange(Constants.PLAYMODE_CHANGED);
